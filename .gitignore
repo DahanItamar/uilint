@@ -1,0 +1,11 @@
+# Source material stays local — only distilled rules are committed.
+transcripts/
+raw/
+*.mp3
+*.txt.bak
+
+.DS_Store
+Thumbs.db
+__pycache__/
+.venv/
+node_modules/
