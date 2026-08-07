@@ -84,27 +84,36 @@ partial outage into a total one.
 
 ## Install
 
-### As a plugin (recommended)
+Two routes. Pick one — installing both loads the same rules twice.
 
-Inside Claude Code:
+### As a plugin — updates itself
 
 ```
-/plugin marketplace add DahanItamar/uilint
+/plugin marketplace add DahanItamar/ai-skills
 /plugin install uilint@dahanitamar
 ```
 
-Updates come with `/plugin marketplace update dahanitamar`. Plugin skills are namespaced, so the
-direct invocation is `/uilint:uilint`.
+Invokes as `/uilint:uilint` (plugin skills are namespaced). Update with
+`/plugin marketplace update dahanitamar`. The catalogue also carries
+[`readme-architect`](https://github.com/DahanItamar/readme-architect) and
+[`flowsystem`](https://github.com/DahanItamar/flowsystem) — one add, install what you want.
 
-### As a skill
+### As a skill — editable
 
 ```bash
 git clone https://github.com/DahanItamar/uilint.git ~/.claude/skills/uilint
 # Windows: git clone https://github.com/DahanItamar/uilint.git "%USERPROFILE%\.claude\skills\uilint"
 ```
 
-Invoke it with `/uilint`. Update with `git pull`. Use this route if you want to edit the rules
-locally — a clone you own beats a cached copy you don't.
+Invokes as `/uilint`. Update with `git pull`. Prefer this if you want to change the rules — a clone
+you own beats a cached copy you don't.
+
+### Any other agent
+
+The plugin format is Claude Code's; Codex, Cursor and the rest do not read it. But
+[`SKILL.md`](SKILL.md) is plain Markdown with no code and nothing to run — paste its body into
+`AGENTS.md`, a Cursor rule, or a system prompt and it works. What you lose is automatic invocation:
+Claude Code loads it when it becomes relevant, other tools need you to point at it.
 
 Either way it triggers on its own whenever you are building UI that fetches, submits, or navigates —
 or when you describe a symptom rather than a category: *"nothing happens when I click"*, *"it just
