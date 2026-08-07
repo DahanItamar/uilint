@@ -84,16 +84,33 @@ partial outage into a total one.
 
 ## Install
 
-```bash
-git clone https://github.com/DahanItamar/uilint.git
-cp -r uilint ~/.claude/skills/uilint          # Windows: xcopy /E /I uilint "%USERPROFILE%\.claude\skills\uilint"
+### As a plugin (recommended)
+
+Inside Claude Code:
+
+```
+/plugin marketplace add DahanItamar/uilint
+/plugin install uilint@dahanitamar
 ```
 
-Restart Claude Code. It triggers on its own whenever you are building UI that fetches, submits, or
-navigates — or when you describe a symptom rather than a category: *"nothing happens when I click"*,
-*"it just spins forever"*, *"users don't know if it worked"*. Invoke it directly with `/uilint`.
+Updates come with `/plugin marketplace update dahanitamar`. Plugin skills are namespaced, so the
+direct invocation is `/uilint:uilint`.
 
-Nothing to install, configure, or keep running. It is Markdown.
+### As a skill
+
+```bash
+git clone https://github.com/DahanItamar/uilint.git ~/.claude/skills/uilint
+# Windows: git clone https://github.com/DahanItamar/uilint.git "%USERPROFILE%\.claude\skills\uilint"
+```
+
+Invoke it with `/uilint`. Update with `git pull`. Use this route if you want to edit the rules
+locally — a clone you own beats a cached copy you don't.
+
+Either way it triggers on its own whenever you are building UI that fetches, submits, or navigates —
+or when you describe a symptom rather than a category: *"nothing happens when I click"*, *"it just
+spins forever"*, *"users don't know if it worked"*.
+
+Nothing to configure or keep running. It is Markdown.
 
 ## Under the Hood — Briefly
 
