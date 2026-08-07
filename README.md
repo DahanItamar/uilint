@@ -84,29 +84,87 @@ partial outage into a total one.
 
 ## Install
 
-Two routes. Pick one — installing both loads the same rules twice.
+Two decisions: **plugin or skill**, and which surface you are on.
 
-### As a plugin — updates itself
+| Route | Invokes as | Updates with | Take it when |
+|:--|:--|:--|:--|
+| **Plugin** | `/uilint:uilint` | `/plugin marketplace update dahanitamar` | You want it to stay current on its own |
+| **Skill** | `/uilint` | `git pull` | You want to rewrite rules and keep your edits |
+
+Pick one — installing both loads the same rules twice.
+
+Everything ships from one catalogue, [**ai-skills**](https://github.com/DahanItamar/ai-skills),
+which also carries [`readme-architect`](https://github.com/DahanItamar/readme-architect) and
+[`flowsystem`](https://github.com/DahanItamar/flowsystem). Add it once, install what you want.
+
+### As a plugin
+
+**Terminal CLI**
 
 ```
 /plugin marketplace add DahanItamar/ai-skills
 /plugin install uilint@dahanitamar
 ```
 
-Invokes as `/uilint:uilint` (plugin skills are namespaced). Update with
-`/plugin marketplace update dahanitamar`. The catalogue also carries
-[`readme-architect`](https://github.com/DahanItamar/readme-architect) and
-[`flowsystem`](https://github.com/DahanItamar/flowsystem) — one add, install what you want.
+**VS Code extension** — the two lines above do nothing here. `/plugin` is an interactive panel the
+terminal CLI has and the extension doesn't. The extension spells it **`/plugins`**, plural, and
+opens a dialog:
 
-### As a skill — editable
+1. Type `/plugins` in the prompt box
+2. **Marketplaces** tab → add `DahanItamar/ai-skills`
+3. **Plugins** tab → find **uilint** → **Install**, and choose a scope
+4. Restart Claude Code when the banner asks
+
+Same plugins and marketplaces either way — the extension drives the same commands underneath, so
+anything you add here is there in the CLI too.
+
+**Claude desktop app** — use the built-in plugin browser and add the same catalogue.
+
+**Scripted, no prompts** — if you have the CLI but want it non-interactive:
+
+```bash
+claude plugin marketplace add DahanItamar/ai-skills
+claude plugin install uilint@dahanitamar
+```
+
+### As a skill
+
+**Into your skills directory** — no marketplace and no install step, so this works in web and cloud
+sessions and anywhere else without a plugin UI. The repository ships its own
+`.claude-plugin/plugin.json`, so Claude Code discovers it in place as `uilint@skills-dir` on the
+next session:
 
 ```bash
 git clone https://github.com/DahanItamar/uilint.git ~/.claude/skills/uilint
-# Windows: git clone https://github.com/DahanItamar/uilint.git "%USERPROFILE%\.claude\skills\uilint"
 ```
 
-Invokes as `/uilint`. Update with `git pull`. Prefer this if you want to change the rules — a clone
-you own beats a cached copy you don't.
+```powershell
+# Windows PowerShell
+git clone https://github.com/DahanItamar/uilint.git "$env:USERPROFILE\.claude\skills\uilint"
+```
+
+Invokes as `/uilint:uilint` — the manifest travels with the clone, so it is namespaced exactly like
+the plugin route. Update with `git pull`.
+
+**Without the plugin layer** — copy only the skill files and you get a plain, un-namespaced skill:
+
+```bash
+git clone https://github.com/DahanItamar/uilint.git /tmp/uilint
+mkdir -p ~/.claude/skills/uilint
+cp -r /tmp/uilint/SKILL.md /tmp/uilint/references ~/.claude/skills/uilint/
+```
+
+```powershell
+# Windows PowerShell
+git clone https://github.com/DahanItamar/uilint.git "$env:TEMP\uilint"
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills\uilint" | Out-Null
+Copy-Item "$env:TEMP\uilint\SKILL.md","$env:TEMP\uilint\references" -Recurse -Destination "$env:USERPROFILE\.claude\skills\uilint"
+```
+
+Invokes as `/uilint`. Take this route if you want to edit the rules — a clone you own beats a cached
+copy you don't.
+
+Either way, restart Claude Code or run `/reload-plugins` to pick it up.
 
 ### Any other agent
 
