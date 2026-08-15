@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "uilint",
+  "description": "Catch the UI states and failure paths that get skipped.",
+  "owner": {
+    "name": "Itamar Dahan",
+    "url": "https://github.com/DahanItamar"
+  },
+  "plugins": [
+    {
+      "name": "uilint",
+      "displayName": "uilint",
+      "source": "./",
+      "description": "A linter for the UI states everyone forgets — loading, empty, error, success and partial. 39 rules applied while the interface is written; blocks completion only on the ones that cause silent user harm.",
+      "category": "review",
+      "license": "MIT",
+      "author": {
+        "name": "Itamar Dahan",
+        "url": "https://github.com/DahanItamar"
+      },
+      "keywords": [
+        "ui",
+        "ux",
+        "frontend",
+        "review",
+        "states",
+        "loading",
+        "error-handling",
+        "forms"
+      ]
+    }
+  ]
+}
