@@ -2,9 +2,21 @@
 
 # uilint
 
-**A linter for the states everyone forgets — it refuses to call a component finished while its error state is missing.**
+**A linter for the states everyone forgets — it refuses to call a component finished while its
+error state is missing, and stays switched on because it blocks on only 16 of its own 39 rules.**
 
-A Claude Code skill: 39 rules about interface behaviour, applied while the UI is written. **No dependencies, no build step, nothing to run.**
+A Claude Code skill: 39 rules about interface behaviour, applied while the UI is written.
+**No dependencies, no build step, nothing to run.**
+
+<img alt="version 1.1.0" src="https://img.shields.io/badge/version-1.1.0-B55400?style=flat-square">
+<a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-2b2e3a?style=flat-square"></a>
+<img alt="zero dependencies" src="https://img.shields.io/badge/dependencies-0-1f6f3f?style=flat-square">
+<img alt="39 rules" src="https://img.shields.io/badge/rules-39-2b2e3a?style=flat-square">
+<img alt="16 rules block completion, 23 report only" src="https://img.shields.io/badge/blocking-16%20of%2039-1f6f3f?style=flat-square">
+
+<a href="SKILL.md">Skill</a> ·
+<a href="docs/SPEC.md">Spec</a> ·
+<a href="references/states.md">Rules</a>
 
 </div>
 
@@ -29,12 +41,58 @@ succeeds, so the other paths never get written.
 Considered is not the same as present. A list that can never be empty needs no empty state — but
 that has to be a decision, not an oversight.
 
+## The gate that stays on
+
+Most quality gates die the same way: they block on everything, someone has a deadline, and the gate
+gets switched off permanently. So severity here is rationed. **16 rules block completion. The other
+23 are reported and never block.**
+
+```mermaid
+flowchart TD
+    C["A section that fetches,<br/>submits, or navigates"] --> W["Walk the five states"]
+    W --> F{"Gap found?"}
+
+    F -- "all five handled" --> DONE["Finished"]
+    F -- "gap" --> S{"Which severity?"}
+
+    S -- "required · 16 rules<br/><i>silent user harm</i>" --> BLOCK["Blocks completion"]
+    S -- "recommended · 23 rules<br/><i>everything else</i>" --> REPORT["Reported, never blocks"]
+
+    REPORT --> DONE
+    BLOCK --> FIX["Fix, then re-check"]
+    FIX --> W
+```
+
+`required` is reserved for **silent user harm**: no feedback at all, an error nobody can act on, a
+dead end with no way forward, internal detail leaked on screen. Everything else reports. That ratio
+is the design — a gate trusted enough to leave on is worth more than a stricter one that gets
+disabled in week two.
+
+Findings lead with what the user experiences, not which rule fired. *"A declined card currently
+shows nothing at all"* lands; *"violates R-FEEDBACK-02"* does not.
+
+**Every rule carries a check you can run in a minute.** All 39 of them — verified by counting: 39
+rules, 39 `Why` lines, 39 `Applies` predicates, 39 `Check` steps, no exceptions.
+
+```markdown
+### R-STATE-12 · One failure must not blank the page
+**DON'T:** Replace an entire screen with an error because a single section failed.
+*Why:* The rest of the data arrived and is still useful. Discarding it turns a
+partial outage into a total one.
+*Applies:* screens with more than one data region
+*Check:* force one request to reject. Is the remaining content still readable?
+*Severity:* required
+```
+
+The `Applies` line is what stops false positives — it is the predicate that keeps a rule about
+multi-region screens from firing on a single-panel one.
+
 ## A real run
 
 Pointed at the front-end of a working local tool — a 1,000-line vanilla-JS page that polls a Python
 server every five seconds:
 
-```
+```text
 Two required rules broken, both silent.
 
   web/index.html:1019 · R-FEEDBACK-02
@@ -56,149 +114,67 @@ Worth fixing:
 ```
 
 Both blocking findings are the same failure mode, and it is the one this rule set exists for: the
-code is *correct*, the happy path is fine, and the failure is invisible by construction. A `catch`
-that swallows an error is a decision to tell the user nothing.
-
-## The gate
-
-Every rule is `required` or `recommended` — **16 and 23** respectively.
-
-`required` is reserved for silent user harm: no feedback at all, an error nobody can act on, a dead
-end with no way forward, internal detail leaked on screen. Those block completion. Everything else
-is reported and never blocks, because a gate that blocks on everything gets switched off.
-
-Findings lead with what the user experiences, not which rule fired. "A declined card currently shows
-nothing at all" lands; "violates R-FEEDBACK-02" does not.
-
-Every rule carries a one-minute test you can actually run:
-
-```markdown
-### R-STATE-12 · One failure must not blank the page
-**DON'T:** Replace an entire screen with an error because a single section failed.
-*Why:* The rest of the data arrived and is still useful. Discarding it turns a
-partial outage into a total one.
-*Applies:* screens with more than one data region
-*Check:* force one request to reject. Is the remaining content still readable?
-*Severity:* required
-```
+code is *correct*, the happy path is fine, and the failure is invisible by construction. **A
+`catch` that swallows an error is a decision to tell the user nothing.**
 
 ## Install
 
-Two decisions: **plugin or skill**, and which surface you are on.
-
-| Route | Invokes as | Updates with | Take it when |
-|:--|:--|:--|:--|
-| **Plugin** | `/uilint:uilint` | `/plugin marketplace update dahanitamar` | You want it to stay current on its own |
-| **Skill** | `/uilint` | `git pull` | You want to rewrite rules and keep your edits |
-
-Pick one — installing both loads the same rules twice.
-
-Everything ships from one catalogue, [**ai-skills**](https://github.com/DahanItamar/ai-skills),
-which also carries [`readme-architect`](https://github.com/DahanItamar/readme-architect) and
-[`flowsystem`](https://github.com/DahanItamar/flowsystem). Add it once, install what you want.
-
-### As a plugin
-
-**Terminal CLI**
-
-```
-/plugin marketplace add DahanItamar/ai-skills
-/plugin install uilint@dahanitamar
-```
-
-**VS Code extension** — the two lines above do nothing here. `/plugin` is an interactive panel the
-terminal CLI has and the extension doesn't. The extension spells it **`/plugins`**, plural, and
-opens a dialog:
-
-1. Type `/plugins` in the prompt box
-2. **Marketplaces** tab → add `DahanItamar/ai-skills`
-3. **Plugins** tab → find **uilint** → **Install**, and choose a scope
-4. Restart Claude Code when the banner asks
-
-Same plugins and marketplaces either way — the extension drives the same commands underneath, so
-anything you add here is there in the CLI too.
-
-**Claude desktop app** — use the built-in plugin browser and add the same catalogue.
-
-**Scripted, no prompts** — if you have the CLI but want it non-interactive:
+This repository is its own marketplace — nothing else to add first.
 
 ```bash
-claude plugin marketplace add DahanItamar/ai-skills
-claude plugin install uilint@dahanitamar
+/plugin marketplace add DahanItamar/uilint
+/plugin install uilint@uilint          # invokes as /uilint:uilint
 ```
 
-### As a skill
-
-**Into your skills directory** — no marketplace and no install step, so this works in web and cloud
-sessions and anywhere else without a plugin UI. The repository ships its own
-`.claude-plugin/plugin.json`, so Claude Code discovers it in place as `uilint@skills-dir` on the
-next session:
+Or clone it straight into your skills directory, which needs no plugin UI and so works in web and
+cloud sessions too:
 
 ```bash
 git clone https://github.com/DahanItamar/uilint.git ~/.claude/skills/uilint
 ```
 
 ```powershell
-# Windows PowerShell
 git clone https://github.com/DahanItamar/uilint.git "$env:USERPROFILE\.claude\skills\uilint"
 ```
 
-Invokes as `/uilint:uilint` — the manifest travels with the clone, so it is namespaced exactly like
-the plugin route. Update with `git pull`.
+Take the clone route if you want to edit the rules — a copy you own beats a cache you don't. Pick
+one route, not both, or the same rules load twice. Restart Claude Code or run `/reload-plugins`
+afterwards.
 
-**Without the plugin layer** — copy only the skill files and you get a plain, un-namespaced skill:
+> [!IMPORTANT]
+> **In the VS Code extension the command is `/plugins`, plural, and it opens a dialog.** The
+> `/plugin` lines above are terminal-CLI syntax and do nothing there — they fail silently, which
+> looks identical to the install not working. In the extension: `/plugins` → **Marketplaces** → add
+> `DahanItamar/uilint` → **Plugins** → **uilint** → **Install**.
 
-```bash
-git clone https://github.com/DahanItamar/uilint.git /tmp/uilint
-mkdir -p ~/.claude/skills/uilint
-cp -r /tmp/uilint/SKILL.md /tmp/uilint/references ~/.claude/skills/uilint/
-```
+It also triggers on its own while you are building UI that fetches, submits, or navigates — or when
+you describe a symptom rather than a category: *"nothing happens when I click"*, *"it just spins
+forever"*, *"users don't know if it worked"*.
 
-```powershell
-# Windows PowerShell
-git clone https://github.com/DahanItamar/uilint.git "$env:TEMP\uilint"
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills\uilint" | Out-Null
-Copy-Item "$env:TEMP\uilint\SKILL.md","$env:TEMP\uilint\references" -Recurse -Destination "$env:USERPROFILE\.claude\skills\uilint"
-```
+## Under the hood — briefly
 
-Invokes as `/uilint`. Take this route if you want to edit the rules — a clone you own beats a cached
-copy you don't.
-
-Either way, restart Claude Code or run `/reload-plugins` to pick it up.
-
-### Any other agent
-
-The plugin format is Claude Code's; Codex, Cursor and the rest do not read it. But
-[`SKILL.md`](SKILL.md) is plain Markdown with no code and nothing to run — paste its body into
-`AGENTS.md`, a Cursor rule, or a system prompt and it works. What you lose is automatic invocation:
-Claude Code loads it when it becomes relevant, other tools need you to point at it.
-
-Either way it triggers on its own whenever you are building UI that fetches, submits, or navigates —
-or when you describe a symptom rather than a category: *"nothing happens when I click"*, *"it just
-spins forever"*, *"users don't know if it worked"*.
-
-Nothing to configure or keep running. It is Markdown.
-
-## Under the Hood — Briefly
-
-- **Two files deep, on purpose** — [`SKILL.md`](SKILL.md) is 103 lines and holds only the trigger,
-  the checklist and the output contract. The rules live in four reference files loaded on demand, so
-  a question about a form does not drag spinner thresholds and Tesler's Law into context.
-- **Rule domains** — [`states.md`](references/states.md) (14): loading, empty, partial, loader
-  choice and timing · [`feedback.md`](references/feedback.md) (9): error content, placement, success
-  confirmation · [`forms.md`](references/forms.md) (8): validation timing, required fields, input
-  tolerance · [`laws.md`](references/laws.md) (8): Jacob's, Hick's, progressive disclosure, Tesler's.
-- **Fixed rule shape** — DO or DON'T, never both; a mandatory *Why*; an `Applies` predicate that
-  prevents false positives on components the rule was never meant for; a runnable `Check`.
-- **Permanent IDs** — a retired rule keeps its number, so a review that cited `R-FORM-03` in 2026
-  still means something in 2028.
-- **A hard ceiling of 40 rules.** At 39 the set is full. New rules merge with or replace existing
-  ones rather than accumulating, because every line is context cost on every unrelated prompt.
-- **Composes rather than competes** — it names `craft` for visual issues and `accessibility` for
+- **Two files deep, on purpose.** [`SKILL.md`](SKILL.md) is 103 lines holding only the trigger, the
+  checklist and the output contract. The 39 rules live in four reference files totalling 348 lines,
+  loaded on demand — so a question about a form does not drag spinner thresholds and Tesler's Law
+  into context.
+- **Four domains.** [`states.md`](references/states.md) 14 · [`feedback.md`](references/feedback.md)
+  9 · [`forms.md`](references/forms.md) 8 · [`laws.md`](references/laws.md) 8 — Jacob's, Hick's,
+  Tesler's, and progressive disclosure.
+- **Fixed rule shape.** DO or DON'T, never both; a mandatory *Why*; an `Applies` predicate; a
+  runnable `Check`. Enforced across all 39.
+- **Permanent IDs.** A retired rule keeps its number, so a review citing `R-FORM-03` in 2026 still
+  means something in 2028.
+- **39 rules against a hard maximum of 40.** One slot left, deliberately. New rules merge with or
+  replace existing ones rather than accumulating, because every line is context cost on every
+  unrelated prompt.
+- **Composes rather than competes.** It names `craft` for visual issues and `accessibility` for
   contrast and ARIA, and comments on neither itself.
+- **Portable to any agent.** The plugin format is Claude Code's, but `SKILL.md` is plain Markdown
+  with nothing to run — paste its body into `AGENTS.md`, a Cursor rule, or a system prompt. What you
+  lose is automatic invocation.
 
-> It deliberately does not touch spacing, colour, typography, elevation, or motion. Those belong to
-> the `craft` skill, whose own description disclaims UX flow — the two were built to leave each other
+> It deliberately does not touch spacing, colour, typography, elevation, or motion — those belong to
+> the `craft` skill, whose own description disclaims UX flow. The two were built to leave each other
 > alone. Design rationale is in [`docs/SPEC.md`](docs/SPEC.md).
 
 ## Credits
@@ -216,6 +192,6 @@ credited to Jakob Nielsen, William Hick and Larry Tesler.
 
 <div align="center">
 
-Built by <a href="https://github.com/DahanItamar">Itamar Dahan</a> · MIT · © 2026
+Built by <a href="https://github.com/DahanItamar">Itamar Dahan</a> · <a href="LICENSE">MIT</a> · © 2026
 
 </div>
