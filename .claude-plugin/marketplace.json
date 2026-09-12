@@ -11,7 +11,7 @@
       "name": "uilint",
       "displayName": "uilint",
       "source": "./",
-      "description": "A linter for the UI states everyone forgets — loading, empty, error, success and partial. 39 rules applied while the interface is written; blocks completion only on the ones that cause silent user harm.",
+      "description": "A linter for the UI states everyone forgets — loading, empty, error, success and partial. 43 rules applied while the interface is written; blocks completion only on the ones that cause silent user harm.",
       "category": "review",
       "license": "MIT",
       "author": {

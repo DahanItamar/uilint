@@ -2,17 +2,21 @@
 
 # uilint
 
-**A linter for the states everyone forgets — it refuses to call a component finished while its
-error state is missing, and stays switched on because it blocks on only 16 of its own 39 rules.**
+**A linter for the states everyone forgets — it refuses to call a component finished while its error
+state is missing, and stays switched on because it blocks on only 17 of its own 40 rules.**
 
-A Claude Code skill: 39 rules about interface behaviour, applied while the UI is written.
+A Claude Code skill: 40 rules about interface behaviour, applied while the UI is written.
 **No dependencies, no build step, nothing to run.**
 
-<img alt="version 1.1.0" src="https://img.shields.io/badge/version-1.1.0-B55400?style=flat-square">
+<img alt="version 1.2.0" src="https://img.shields.io/badge/version-1.2.0-B55400?style=flat-square">
 <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-2b2e3a?style=flat-square"></a>
+<img alt="40 rules" src="https://img.shields.io/badge/rules-40-2b2e3a?style=flat-square">
+<img alt="17 rules block completion, 23 report only" src="https://img.shields.io/badge/blocking-17%20of%2040-1f6f3f?style=flat-square">
+
 <img alt="zero dependencies" src="https://img.shields.io/badge/dependencies-0-1f6f3f?style=flat-square">
-<img alt="39 rules" src="https://img.shields.io/badge/rules-39-2b2e3a?style=flat-square">
-<img alt="16 rules block completion, 23 report only" src="https://img.shields.io/badge/blocking-16%20of%2039-1f6f3f?style=flat-square">
+<img alt="five named laws: Jacob's, Hick's, Fitts's, Tesler's, and progressive disclosure" src="https://img.shields.io/badge/laws-5-2b2e3a?style=flat-square">
+<img alt="four reference files, loaded on demand" src="https://img.shields.io/badge/reference%20files-4-2b2e3a?style=flat-square">
+<img alt="all 40 rules carry Why, Applies, Check and Severity" src="https://img.shields.io/badge/rule%20shape-40%20of%2040-2b2e3a?style=flat-square">
 
 <a href="SKILL.md">Skill</a> ·
 <a href="docs/SPEC.md">Spec</a> ·
@@ -44,7 +48,7 @@ that has to be a decision, not an oversight.
 ## The gate that stays on
 
 Most quality gates die the same way: they block on everything, someone has a deadline, and the gate
-gets switched off permanently. So severity here is rationed. **16 rules block completion. The other
+gets switched off permanently. So severity here is rationed. **17 rules block completion. The other
 23 are reported and never block.**
 
 ```mermaid
@@ -55,7 +59,7 @@ flowchart TD
     F -- "all five handled" --> DONE["Finished"]
     F -- "gap" --> S{"Which severity?"}
 
-    S -- "required · 16 rules<br/><i>silent user harm</i>" --> BLOCK["Blocks completion"]
+    S -- "required · 17 rules<br/><i>silent user harm</i>" --> BLOCK["Blocks completion"]
     S -- "recommended · 23 rules<br/><i>everything else</i>" --> REPORT["Reported, never blocks"]
 
     REPORT --> DONE
@@ -71,8 +75,8 @@ disabled in week two.
 Findings lead with what the user experiences, not which rule fired. *"A declined card currently
 shows nothing at all"* lands; *"violates R-FEEDBACK-02"* does not.
 
-**Every rule carries a check you can run in a minute.** All 39 of them — verified by counting: 39
-rules, 39 `Why` lines, 39 `Applies` predicates, 39 `Check` steps, no exceptions.
+**Every rule carries a check you can run in a minute** — all 40 of them, verified by counting: 40
+rules, 40 `Why` lines, 40 `Applies` predicates, 40 `Check` steps, no exceptions.
 
 ```markdown
 ### R-STATE-12 · One failure must not blank the page
@@ -84,38 +88,49 @@ partial outage into a total one.
 *Severity:* required
 ```
 
-The `Applies` line is what stops false positives — it is the predicate that keeps a rule about
+The `Applies` line is what stops false positives — the predicate that keeps a rule about
 multi-region screens from firing on a single-panel one.
 
 ## A real run
 
-Pointed at the front-end of a working local tool — a 1,000-line vanilla-JS page that polls a Python
-server every five seconds:
+Pointed at the front end of a working local tool: a 1,023-line vanilla-JS page that polls a Python
+server every five seconds.
 
 ```text
-Two required rules broken, both silent.
+Four required rules broken. All four are invisible by construction.
 
+Blocking — 4 required:
   web/index.html:1019 · R-FEEDBACK-02
     The five-second poll swallows every failure: refresh().catch(() => {}).
-    Kill the server and the page keeps showing stale data with no indication
-    it stopped updating. The user is reading numbers that stopped being true.
-    Fix: surface a stale/disconnected marker after two consecutive failures
+    Kill the server and the page keeps showing stale numbers with no sign that
+    it stopped updating.
+    Fix: surface a disconnected marker after two consecutive failures
 
   web/index.html:917 · R-FEEDBACK-02
-    es.onerror closes and reconnects the event stream silently, so a dropped
+    es.onerror closes and reopens the event stream silently, so a dropped
     connection is invisible until someone notices progress has stopped.
     Fix: show a reconnecting state while the retry loop runs
 
-Worth fixing:
+  web/index.html:538 · R-STATE-02
+    Every data panel ships empty - <div id="library"></div> - and the file
+    contains no skeleton markup at all. A new user cannot tell an empty
+    library from one that has not finished loading.
+    Fix: render a skeleton until /api/state resolves at :873
 
-  web/index.html:1012 · R-STATE-02
-    First paint renders every panel empty before /api/state resolves — a new
-    user cannot tell an empty library from one that has not loaded yet.
+  web/index.html:204 · R-STATE-15
+    The remove-from-queue button sits at opacity: 0 until :hover. On a touch
+    screen there is no hover, so the only way to clear a queued URL never
+    appears at all.
+    Fix: :focus-visible already covers keyboard - keep it visible on touch
+
+Passed, deliberately: three disabled assignments (:601, :795, :988). Each is
+either in flight or self-evident, which is what R-FORM-01 permits.
 ```
 
-Both blocking findings are the same failure mode, and it is the one this rule set exists for: the
-code is *correct*, the happy path is fine, and the failure is invisible by construction. **A
-`catch` that swallows an error is a decision to tell the user nothing.**
+Three of those the previous version would also have caught. The fourth — `:204` — is the new
+control-states rule seeing something the old 39 could not: a button that exists for a mouse and does
+not exist for a thumb. **The three `disabled` assignments it walked past are the other half of the
+same claim** — a gate that fires on everything teaches you to switch it off.
 
 ## Install
 
@@ -153,25 +168,24 @@ forever"*, *"users don't know if it worked"*.
 
 ## Under the hood — briefly
 
-- **Two files deep, on purpose.** [`SKILL.md`](SKILL.md) is 103 lines holding only the trigger, the
-  checklist and the output contract. The 39 rules live in four reference files totalling 348 lines,
+- **Two files deep, on purpose.** [`SKILL.md`](SKILL.md) is 104 lines holding only the trigger, the
+  checklist and the output contract. The 40 rules live in four reference files totalling 380 lines,
   loaded on demand — so a question about a form does not drag spinner thresholds and Tesler's Law
   into context.
-- **Four domains.** [`states.md`](references/states.md) 14 · [`feedback.md`](references/feedback.md)
-  9 · [`forms.md`](references/forms.md) 8 · [`laws.md`](references/laws.md) 8 — Jacob's, Hick's,
-  Tesler's, and progressive disclosure.
+- **Four domains.** [`states.md`](references/states.md) 13 · [`feedback.md`](references/feedback.md)
+  9 · [`forms.md`](references/forms.md) 8 · [`laws.md`](references/laws.md) 10 — Jacob's, Hick's,
+  Fitts's and Tesler's Laws, plus progressive disclosure.
 - **Fixed rule shape.** DO or DON'T, never both; a mandatory *Why*; an `Applies` predicate; a
-  runnable `Check`. Enforced across all 39.
-- **Permanent IDs.** A retired rule keeps its number, so a review citing `R-FORM-03` in 2026 still
-  means something in 2028.
-- **39 rules against a hard maximum of 40.** One slot left, deliberately. New rules merge with or
-  replace existing ones rather than accumulating, because every line is context cost on every
-  unrelated prompt.
+  runnable `Check`; a severity. Enforced across all 40, and no rule block exceeds 10 lines.
+- **Permanent IDs, including retired ones.** `R-STATE-03` and `R-STATE-05` are no longer rules —
+  their material merged into `R-STATE-06` and `R-STATE-04` — but the numbers are never reused, so an
+  older review citing one still resolves to something.
+- **The 40-rule ceiling is hard, and it held.** Parts 17 to 19 of the source series arrived wanting
+  four new rules. Two pairs of existing rules merged to make room and a fifth new rule folded into
+  one already there, so the set grew by one and the ceiling did not move.
+  [`docs/SPEC.md`](docs/SPEC.md) §4 is the line that forced it.
 - **Composes rather than competes.** It names `craft` for visual issues and `accessibility` for
   contrast and ARIA, and comments on neither itself.
-- **Portable to any agent.** The plugin format is Claude Code's, but `SKILL.md` is plain Markdown
-  with nothing to run — paste its body into `AGENTS.md`, a Cursor rule, or a system prompt. What you
-  lose is automatic invocation.
 
 > It deliberately does not touch spacing, colour, typography, elevation, or motion — those belong to
 > the `craft` skill, whose own description disclaims UX flow. The two were built to leave each other
@@ -181,12 +195,13 @@ forever"*, *"users don't know if it worked"*.
 
 The behavioural rules were distilled from
 **[@synsation_](https://www.instagram.com/synsation_/)**'s *Build for Good UX* series — a genuinely
-practical walkthrough of the states and failure paths most tutorials skip. If these rules are useful
-to you, the series is worth your time.
+practical walkthrough of the states and failure paths most tutorials skip. Version 1.2.0 folds in
+parts 17 to 19: the six states of a button, the case against disabled submits, and Fitts's Law. If
+these rules are useful to you, the series is worth your time.
 
 They are independently written directives derived from that material; no transcripts or source text
-appear in this repository. Jacob's Law, Hick's Law and Tesler's Law are long-established principles,
-credited to Jakob Nielsen, William Hick and Larry Tesler.
+appear in this repository. Jacob's Law, Hick's Law, Fitts's Law and Tesler's Law are long-established
+principles, credited to Jakob Nielsen, William Hick, Paul Fitts and Larry Tesler.
 
 ---
 

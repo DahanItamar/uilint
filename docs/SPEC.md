@@ -175,7 +175,9 @@ Enforced by review, because every line is context cost on real requests.
 | One rule block | 6 lines | 10 lines |
 | Total rules | 30 | 40 |
 
-Hitting the hard limit means merging or cutting rules, never raising the limit.
+Hitting the hard limit means merging or cutting rules, never raising the limit. This was tested in
+v1.2.0 and held — see §12. Retired rule IDs (`R-STATE-03`, `R-STATE-05`) stay retired rather than
+being reissued, so an older review citing one still resolves.
 
 ### Tooling
 
@@ -383,7 +385,12 @@ A vague error message gets flagged and rewritten.
 - **Part 3 of the source series was never captured.** Decided rather than left open — see Assumption
   7; M1 is not blocked. Capturing it later would refine the loader-selection rules, not invalidate
   them. — blocks: nothing · needed by: whenever the transcript is available
-- **The series is still running** (Part 16 points at Part 17). No refresh path is defined for folding
-  later parts into the rule set. — blocks: nothing today · needed by: M5
+- ~~**The series is still running** (Part 16 points at Part 17). No refresh path is defined for folding
+  later parts into the rule set.~~ **Answered in v1.2.0.** Parts 17 to 19 were transcribed and folded
+  in, and the refresh path is now the precedent they set: new material merges into existing rules
+  first, and only what cannot be merged takes a new ID. Those three parts wanted four new rules; the
+  set grew by one, because `R-STATE-03` merged into `R-STATE-06`, `R-STATE-05` into `R-STATE-04`, and
+  the "take the user to the first failure" material into `R-FEEDBACK-04`. The §4 hard limit of 40 was
+  not raised. Retired IDs are never reused.
 - **Does the gate hold for prototypes?** A user who says "quick mockup" arguably wants the gate off by
   default rather than per-component. — blocks: nothing · needed by: post-launch, from real usage

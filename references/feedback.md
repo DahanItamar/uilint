@@ -31,12 +31,15 @@ matters: was I charged?
 *Check:* read the message aloud. Does it answer all three questions without the console?
 *Severity:* required
 
-### R-FEEDBACK-04 · Put the error where the problem is
-**DO:** Place the message next to the field, control, or region that failed.
-*Why:* The user's attention is already there. Distance between the problem and its explanation is
-work you are handing to them, and at worst they never find it.
+### R-FEEDBACK-04 · Put the error where the problem is, and take the user there
+**DO:** Place the message next to the field, control, or region that failed — and on a rejected
+submit, move focus and scroll to the first failure rather than only marking it.
+*Why:* The user's attention is already on the thing they touched. Distance between a problem and its
+explanation is work handed to them, and on anything taller than one screen that work is a search.
+Landing them on the field turns the search into a correction.
 *Applies:* validation errors, action failures, section-level failures
-*Check:* can the message be seen without scrolling from the thing that caused it?
+*Check:* can the message be seen without scrolling from its cause? Blank a field near the top of a
+long form and submit from the bottom — does the page take you there?
 *Severity:* required
 
 ### R-FEEDBACK-05 · Toasts only for what can be missed

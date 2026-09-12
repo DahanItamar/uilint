@@ -3,6 +3,9 @@
 Loading, empty, and partial. Error content lives in `feedback.md`; this file covers whether a state
 exists at all and which form it takes.
 
+`R-STATE-03` and `R-STATE-05` are retired — their material was merged into `R-STATE-06` and
+`R-STATE-04`. Retired IDs are never reused, so a review citing one still resolves.
+
 ---
 
 ### R-STATE-01 · All five states considered
@@ -22,37 +25,26 @@ seconds.
 *Check:* throttle the network to slow 3G and load the page. Is anything on screen immediately?
 *Severity:* required
 
-### R-STATE-03 · No loader for waits under a second
-**DON'T:** Show a spinner for an operation that typically completes in under ~1 second.
-*Why:* It appears and vanishes before the animation reads as motion, so it registers as a glitch and
-makes the interaction feel *less* smooth than showing nothing.
-*Applies:* fast local operations, cached reads, optimistic updates
-*Check:* time the operation. Under a second — render the result directly.
+### R-STATE-04 · Long waits need words, then a measure
+**DO:** Put text on a wait that runs past a few seconds and advance it as the work moves; past ~10
+seconds, switch to determinate progress or an explicit step list.
+*Why:* An indefinite animation with no words reads as stuck, while text that advances shows the
+system still working — people wait substantially longer for it. But a loop that never resolves
+inverts patience, because the user cannot tell progress from a hang.
+*Applies:* multi-step or network-bound operations — uploads, imports, builds, batch jobs
+*Check:* past ~5 seconds, does the screen say what is happening? Can it exceed ~10 seconds? Then it
+needs progress, not a spinner.
 *Severity:* recommended
 
-### R-STATE-04 · Give long waits something to say
-**DO:** Add text to a wait that runs past a few seconds, and change that text as the work progresses.
-*Why:* An indefinite animation with no words starts reading as stuck. Text that advances shows the
-system is still working, and people wait substantially longer for it.
-*Applies:* multi-step or network-bound operations
-*Check:* is there any point past ~5 seconds where the screen says nothing about what is happening?
-*Severity:* recommended
-
-### R-STATE-05 · Past ten seconds, stop looping
-**DO:** Switch to determinate progress or an explicit step list for waits that can exceed ~10 seconds.
-*Why:* A loop that never resolves stops reassuring and starts irritating — the user cannot tell
-progress from a hang, and patience inverts.
-*Applies:* uploads, imports, builds, batch jobs
-*Check:* can this operation exceed 10 seconds? Then it needs progress, not a spinner.
-*Severity:* recommended
-
-### R-STATE-06 · Match the loader to the shape of the wait
-**DO:** Use a skeleton that mirrors the layout when a whole region is arriving; use an inline spinner
-inside a button or small control when a single action is in flight.
-*Why:* A skeleton lets the eye settle into the layout before content lands. A skeleton inside a
-button is noise; a page-wide spinner throws away the layout information you already have.
-*Applies:* any loading affordance
-*Check:* does the loader occupy the same footprint the real content will?
+### R-STATE-06 · Match the loader to the wait
+**DO:** Fit the affordance to the wait — nothing under ~1 second, a skeleton mirroring the layout
+when a whole region is arriving, an inline spinner in the control when one action is in flight.
+*Why:* A spinner that appears and vanishes inside a second registers as a glitch, not as progress.
+Past that, a skeleton lets the eye settle into the layout; a skeleton inside a button is noise, and
+a page-wide spinner throws away the layout information you already have.
+*Applies:* any loading affordance, at any duration
+*Check:* time it first — under a second, render the result directly. Otherwise, does the loader
+occupy the same footprint the real content will?
 *Severity:* recommended
 
 ### R-STATE-07 · Fail as soon as you know
@@ -122,3 +114,14 @@ the beginning and gives each completed step a reason to continue.
 *Applies:* first-run dashboards, workspace creation, onboarding — not routine empty states later
 *Check:* create a fresh account. Can you tell how many steps stand between you and a working setup?
 *Severity:* recommended
+
+### R-STATE-15 · A control has six states, not one
+**DO:** Decide what a button looks like when idle, hovered, focused, held down, working, and
+unavailable — then build the ones that apply to the platform you ship on.
+*Why:* A control that looks identical before, during, and after a press tells the user nothing, so
+they press it again. The duplicate submit that follows is not user error; it is the missing state.
+*Applies:* buttons, icon buttons, and any control that triggers an action
+*Check:* tab to it — visible focus ring? Hold it down — anything change? Trigger its slow path — does
+the control itself say it is working? Then tap it on a phone and scroll away: a hover style that
+latches after the finger lifts reads as a bug, because touch has no cursor to leave.
+*Severity:* required

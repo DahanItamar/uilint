@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "uilint",
   "displayName": "uilint",
-  "version": "1.1.0",
-  "description": "A linter for the UI states everyone forgets — loading, empty, error, success and partial. 39 rules applied while the interface is written; blocks completion only on the ones that cause silent user harm.",
+  "version": "1.2.0",
+  "description": "A linter for the UI states everyone forgets — loading, empty, error, success and partial. 43 rules applied while the interface is written; blocks completion only on the ones that cause silent user harm.",
   "author": {
     "name": "Itamar Dahan",
     "url": "https://github.com/DahanItamar"

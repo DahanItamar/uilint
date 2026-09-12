@@ -60,10 +60,10 @@ Load only what the work touches:
 
 | File | Covers |
 | --- | --- |
-| `references/states.md` | Loading, empty, partial/degraded, loader choice and timing |
-| `references/feedback.md` | Error content, error placement, success confirmation |
-| `references/forms.md` | Validation timing, required fields, prefill, input tolerance |
-| `references/laws.md` | Jacob's Law, Hick's Law, progressive disclosure, Tesler's Law |
+| `references/states.md` | Loading, empty, partial/degraded, loader choice and timing, control states |
+| `references/feedback.md` | Error content, error placement and navigation, success confirmation |
+| `references/forms.md` | Validation timing, required fields, prefill, input tolerance, disabled submits |
+| `references/laws.md` | Jacob's, Hick's, Fitts's and Tesler's Laws, progressive disclosure, tap targets |
 
 ## Output — review mode
 

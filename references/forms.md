@@ -5,12 +5,15 @@ placement are in `feedback.md`.
 
 ---
 
-### R-FORM-01 · A disabled submit must explain itself
-**DON'T:** Grey out the submit control without showing what is still missing.
-*Why:* A button that refuses to work for no visible reason is more frustrating than one that fails
-loudly — the user has nothing to act on and no way to make progress.
+### R-FORM-01 · Do not disable the submit to enforce validity
+**DON'T:** Grey out a submit control to communicate that the form is not finished.
+*Why:* It hands the user the job of finding what is missing, on a form mixing required and optional
+fields — and disabled controls are skipped by keyboard and screen-reader navigation, so the button
+and the reason it is off are both hard to discover. Disabling is right only where the reason is
+obvious (`Previous` on page one) or the work is in flight and a second press would submit twice.
 *Applies:* any form gating submission on validity
-*Check:* leave one field blank. Without scrolling, can you tell which one?
+*Check:* would the user have to work out how to enable it? Then leave it enabled and let the click
+name what is missing.
 *Severity:* required
 
 ### R-FORM-02 · Mark what is required
