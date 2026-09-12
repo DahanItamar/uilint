@@ -109,12 +109,12 @@ partial outage into a total one.
 ```
 
 The `Applies` predicate is what stops false positives, and every `Check` runs in about a minute. Rule
-IDs are permanent, including retired ones — `R-STATE-03` and `R-STATE-05` were merged away and their
-numbers will not be reissued.
+IDs are permanent, so a review that cites one still reads correctly years later.
 
-The ceiling of 40 rules is hard. Parts 17 to 19 of the source series wanted four new rules; two pairs
-merged to make room, so the set grew by one and the ceiling held. Spacing, colour and typography are
-out of scope by design and belong to the `craft` skill. Rationale is in [`docs/SPEC.md`](docs/SPEC.md).
+The set is capped at 40 rules, and the cap is hard: new material merges into the rules already there
+rather than accumulating, because every rule is context cost on every unrelated prompt. Spacing,
+colour and typography are out of scope by design and belong to the `craft` skill. The reasoning is
+in [`docs/SPEC.md`](docs/SPEC.md).
 
 ## Credits
 
