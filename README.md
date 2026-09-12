@@ -1,6 +1,10 @@
 <div align="center">
 
-# uilint
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/brand/uilint-dark.png">
+  <img src="docs/brand/uilint-light.png" width="420"
+       alt="uilint — five stacked interface rows inside lint brackets, one flagged with an error mark and the last one only half filled">
+</picture>
 
 **A linter for the states everyone forgets — it refuses to call a component finished while its error
 state is missing, and stays switched on because it blocks on only 17 of its own 40 rules.**
