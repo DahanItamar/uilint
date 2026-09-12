@@ -30,6 +30,16 @@ A Claude Code skill: 40 rules about interface behaviour, applied while the UI is
 
 ---
 
+## Contents
+
+- [The five states](#the-five-states) — what it walks, and why those five
+- [The gate that stays on](#the-gate-that-stays-on) — why it blocks on 17 of 40
+- [A real run](#a-real-run) — findings against a live file, with line numbers
+- [Project structure](#project-structure) — where the 40 rules live
+- [Install](#install) — marketplace, or clone into your skills directory
+- [Under the hood](#under-the-hood--briefly) — the constraints it holds itself to
+- [Credits](#credits) — the source series
+
 ## The five states
 
 Ask an AI tool for a checkout form and you get one that works when the card clears, the network
@@ -136,6 +146,31 @@ control-states rule seeing something the old 39 could not: a button that exists 
 not exist for a thumb. **The three `disabled` assignments it walked past are the other half of the
 same claim** — a gate that fires on everything teaches you to switch it off.
 
+## Project structure
+
+Two files deep by design. `SKILL.md` is always in context; a reference file is read only when the
+work touches its domain, so a question about a form does not drag Tesler's Law along with it.
+
+```
+uilint/
+├── SKILL.md                  104 lines · trigger, five-state checklist, output contract
+├── references/               40 rules across four domains, loaded on demand
+│   ├── states.md              13 rules ·  7 blocking · loading, empty, partial, control states
+│   ├── feedback.md             9 rules ·  6 blocking · error content, placement, confirmation
+│   ├── forms.md                8 rules ·  3 blocking · validation timing, disabled submits
+│   └── laws.md                10 rules ·  1 blocking · Jacob's, Hick's, Fitts's, Tesler's
+├── docs/
+│   ├── SPEC.md               397 lines · rationale, hard limits, open questions
+│   └── brand/                          · wordmark, light and dark
+├── .claude-plugin/
+│   ├── plugin.json                     · v1.2.0
+│   └── marketplace.json                · lets the repo serve itself as a marketplace
+└── LICENSE                             · MIT
+```
+
+Nothing is generated and nothing is compiled — every file above is Markdown or a plain JSON
+manifest, which is why the dependency count is zero and stays that way.
+
 ## Install
 
 This repository is its own marketplace — nothing else to add first.
@@ -176,9 +211,6 @@ forever"*, *"users don't know if it worked"*.
   checklist and the output contract. The 40 rules live in four reference files totalling 380 lines,
   loaded on demand — so a question about a form does not drag spinner thresholds and Tesler's Law
   into context.
-- **Four domains.** [`states.md`](references/states.md) 13 · [`feedback.md`](references/feedback.md)
-  9 · [`forms.md`](references/forms.md) 8 · [`laws.md`](references/laws.md) 10 — Jacob's, Hick's,
-  Fitts's and Tesler's Laws, plus progressive disclosure.
 - **Fixed rule shape.** DO or DON'T, never both; a mandatory *Why*; an `Applies` predicate; a
   runnable `Check`; a severity. Enforced across all 40, and no rule block exceeds 10 lines.
 - **Permanent IDs, including retired ones.** `R-STATE-03` and `R-STATE-05` are no longer rules —
